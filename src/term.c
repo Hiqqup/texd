@@ -1,9 +1,35 @@
 
 #include "term.h"
-#include "global.h"
+#include "main.h"
 
 struct termios orig_termios;
 
+
+
+int term_get_input()
+{
+    int c = '\0';
+    if (read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN)
+        die("read - input");
+    return c;
+    // i wont bother with escape sequences yet
+}
+
+void term_clean_screen()
+{
+    write(STDOUT_FILENO, "\x1b[2J", 4);
+    write(STDOUT_FILENO, "\x1b[H", 3);
+}
+
+void term_exit_editor()
+{
+    term_clean_screen();
+    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios) == -1)
+        die("tcsetattr");
+}
+
+// from here mostly technical boilerplate   
+// the hard way
 bool get_cursor_position(unsigned short int* rows, unsigned short int* cols)
 {
     char buf[32];
@@ -24,11 +50,12 @@ bool get_cursor_position(unsigned short int* rows, unsigned short int* cols)
         return false;
     return true;
 }
+//the easy way
 bool term_get_dimensions(unsigned short int* rows, unsigned short int* cols)
 {
     struct winsize ws;
 
-    if (  ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) {
+    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) {
         if (write(STDOUT_FILENO, "\x1b[999C\x1b[999B", 12) != 12)
             return false;
         return get_cursor_position(rows, cols);
@@ -39,31 +66,12 @@ bool term_get_dimensions(unsigned short int* rows, unsigned short int* cols)
     }
 }
 
-void term_clean_screen()
-{
-    write(STDOUT_FILENO, "\x1b[2J", 4);
-    write(STDOUT_FILENO, "\x1b[H", 3);
-}
-
-void term_exit_editor()
-{
-    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios) == -1)
-        die("tcsetattr");
-    // i could add that it clears the screen but i like it not doing it for now
-}
-int term_get_input()
-{
-    int c = '\0';
-    if (read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN)
-        die("read - input");
-    return c;
-    // i wont bother with escape sequences yet
-}
 void term_enable_raw_mode()
 {
     struct termios raw;
     if (tcgetattr(STDIN_FILENO, &raw) == -1)
         die("tcgetattr");
+    atexit(term_exit_editor);
     orig_termios = raw;
     raw.c_iflag &= ~(
         BRKINT | // idk
@@ -71,8 +79,7 @@ void term_enable_raw_mode()
         ISTRIP | // idk
         ICRNL | // fix ctrl m
         IXON); // disable ctrl s crl q
-    raw.c_oflag &= ~(
-        OPOST); // basically turns \r\n into just \n
+    // raw.c_oflag &= ~(OPOST); // basically turns \r\n into just \n
     raw.c_cflag |= CS8; // idk
     raw.c_lflag &= ~(
         ECHO | // as the name suggests
