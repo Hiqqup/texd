@@ -17,7 +17,7 @@ enum KEYS  {
     ESC_KEY = 27,
 };
 
-#define TERM_TICK 10
+#define TERM_TICK 200
 #define CTRL_KEY(k) ((k) & 0x1f)
 
 

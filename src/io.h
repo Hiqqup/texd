@@ -3,6 +3,7 @@
 #define IO_H
 #include <stdio.h>
 #include "main.h"
+#include "list.h"
 #include <string.h>
 #include <unistd.h>
 struct PrintBuffer{
