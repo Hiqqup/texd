@@ -35,8 +35,7 @@ int main(int argc, char** argv)
     term_enable_raw_mode();
     init(argc, argv);
 
-    buf.first = list_mov_xy(0, 3, 0, buf.first);//3 down 
-    buf.first = list_mov_xy(0, -3, 0, buf.first);// three up
+    buf.first = list_mov_xy(0, 1, 38, buf.first);//3 up
     // printf("term dimesions: %i x %i \n",buf.term_cols, buf.term_rows);
     /*tmp loop to check if input works*/
     // LIST_VAL_T c = 0;

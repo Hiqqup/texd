@@ -1,5 +1,6 @@
 
 #include "io.h"
+#include "list.h"
 #include "main.h"
 void fileio_to_list(char* filename, node_t* node)
 {
@@ -9,6 +10,8 @@ void fileio_to_list(char* filename, node_t* node)
     char c;
     do {
         c = fgetc(fp);
+        if (c == '\t')
+            die("cant deal with tabspaces");
         node = list_insert(node, c);
     } while (c != EOF);
     fclose(fp);
@@ -23,28 +26,9 @@ void print_buffer_append(struct PrintBuffer* print_buf, const char* string, unsi
 }
 void print_buffer_from_contents(struct PrintBuffer* print_buf, struct Buffer* buf)
 {
-    int row = 0;
-    int col = 0;
-    node_t* cur = buf->first->next;
-    while (cur->val != LIST_STOPPER && row < buf->term_rows) {
-        print_buffer_append(print_buf, &cur->val, 1);
-        if (cur->val == '\n') {
-            print_buffer_append(print_buf, "\x1b[K", 3);
-            row++;
-            col = 0;
-        }
-        if (cur->val != '\n' /*and other escape sequences that dont advance the cursor*/) {
-            col++;
-        }
-        if (col > buf->term_cols) {
-            print_buffer_append(print_buf, "\x1b[K", 3);
-            row++;
-            col = 0;
-        }// gotta figure out how to correctly render multilines
-        cur = cur->next;
-    }
-    col = 0;
-    while (cur->val != LIST_STOPPER && cur->val != '\n' && col++ < buf->term_cols) {
+    int prints = list_offset_from_xy(0, buf->term_rows + 1, buf->term_cols, buf->first);
+    node_t* cur = (buf->first->next != NULL) ? buf->first->next : buf->first;
+    for (int i = 0; i < prints - 1 && cur->val != LIST_STOPPER; i++) {
         print_buffer_append(print_buf, &cur->val, 1);
         cur = cur->next;
     }
@@ -62,7 +46,7 @@ void output_print_buffer(struct Buffer* buf)
 
     print_buffer_append(&print_buffer, "\x1b[?25l", 6); // hide cursor
     print_buffer_append(&print_buffer, "\x1b[H", 3); // move to the top
-    print_buffer_append(&print_buffer, "\x1b[K", 3);
+    print_buffer_append(&print_buffer, "\x1b[2J", 4);
 
     print_buffer_from_contents(&print_buffer, buf);
 

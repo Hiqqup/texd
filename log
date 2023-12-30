@@ -1,50 +1,3 @@
-/*** includes ***/
-#include <ctype.h>
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/ioctl.h>
-#include <termios.h>
-#include <unistd.h>
-
-/*** defines ***/
-
-#define CTRL_KEY(k) ((k) & 0x1f)
-
-/*** data ***/
-
-struct editorConfig {
-    int screen_rows;
-    int screen_cols;
-    struct termios original_termios;
-};
-struct editorConfig E;
-
-/*** terminal ***/
-
-void die(const char* s)
-{
-    write(STDOUT_FILENO, "\x1b[2J", 4);
-    write(STDOUT_FILENO, "\x1b[H", 3);
-    perror(s);
-    exit(1);
-}
-
-void disable_raw_mode()
-{
-    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &E.original_termios) == -1)
-        die("tcsetattr");
-}
-
-void enable_raw_mode()
-{
-    if (tcgetattr(STDIN_FILENO, &E.original_termios) == -1)
-        die("tcgetattr");
-    atexit(disable_raw_mode);
-    struct termios raw = E.original_termios;
-    raw.c_iflag &= ~(BRKINT | IXON | ICRNL | INPCK | ISTRIP);
-    raw.c_oflag &= ~(OPOST);
-    raw.c_cflag |= (CS8);
     raw.c_lflag &= ~(ECHO | ICANON | ISIG | IEXTEN);
     raw.c_cc[VMIN] = 0;
     raw.c_cc[VTIME] = 1;
@@ -151,3 +104,50 @@ int main()
 
                 buf->first = list_mov_xy(0, 1, buf->term_cols, buf->first);
                 buf->first = list_mov_xy(0, -1, buf->term_cols, buf->first);
+/*** includes ***/
+#include <ctype.h>
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/ioctl.h>
+#include <termios.h>
+#include <unistd.h>
+
+/*** defines ***/
+
+#define CTRL_KEY(k) ((k) & 0x1f)
+
+/*** data ***/
+
+struct editorConfig {
+    int screen_rows;
+    int screen_cols;
+    struct termios original_termios;
+};
+struct editorConfig E;
+
+/*** terminal ***/
+
+void die(const char* s)
+{
+    write(STDOUT_FILENO, "\x1b[2J", 4);
+    write(STDOUT_FILENO, "\x1b[H", 3);
+    perror(s);
+    exit(1);
+}
+
+void disable_raw_mode()
+{
+    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &E.original_termios) == -1)
+        die("tcsetattr");
+}
+
+void enable_raw_mode()
+{
+    if (tcgetattr(STDIN_FILENO, &E.original_termios) == -1)
+        die("tcgetattr");
+    atexit(disable_raw_mode);
+    struct termios raw = E.original_termios;
+    raw.c_iflag &= ~(BRKINT | IXON | ICRNL | INPCK | ISTRIP);
+    raw.c_oflag &= ~(OPOST);
+    raw.c_cflag |= (CS8);

@@ -5,7 +5,7 @@ CFLAGS= -Wall -pedantic -Wextra -std=gnu99
 SRC=src
 BIN=bin
 SOURCE= $(SRC)/main.c $(SRC)/term.c $(SRC)/io.c $(SRC)/key.c $(SRC)/list.c
-EDIT_FILE=log 
+EDIT_FILE=log
 #tut/main.cpy 
 
 

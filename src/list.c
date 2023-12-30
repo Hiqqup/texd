@@ -37,62 +37,75 @@ void list_free(node_t* entry)
     }
     free(entry);
 }
-node_t* move_ptr_line(node_t* start, bool up, int* steps_it_took)
+node_t* move_ptr_line(node_t* start, bool up, int* steps_it_took, unsigned short int width)
 {
-    // takes in a start pointer and goes to to the next linebreak
-    // gotta add lines spanning multiple lines later
-    //
+    int col = 0;
     if (!up) {
-        node_t* tmp = start;
-        int counter = 1;
-        while (tmp->val != LIST_STOPPER && tmp->val != '\n') {
-            tmp = tmp->next;
-            counter++;
+        if (start->next == NULL)
+            return start;
+        start = start->next;
+        (*steps_it_took)++;
+        while (start->val != LIST_STOPPER && start->val != '\n' && col++ < width - 1) {
+            start = start->next;
+            (*steps_it_took)++;
         }
-        if (tmp->val != LIST_STOPPER && tmp->next != NULL) {
-            (*steps_it_took) += counter;
-            start = tmp;
-        }
+        if (start->val != '\n' && start->next->val == '\n') {
+            (*steps_it_took)++;
+            return start->next;
+        } // to deal with lines that are exactly with long
     } else {
+        if (start->prev == NULL)
+            return start;
+        start = start->prev;
         (*steps_it_took)--;
         while (start->val != LIST_STOPPER && start->val != '\n') {
             start = start->prev;
             (*steps_it_took)--;
+            col--;
+        }
+        if (col % width == 0)
+            col++;
+        col = ((col / width)) * width;
+        while (col++) {
+            start = start->next;
+            (*steps_it_took)++;
         }
     }
 
     return start;
 }
-node_t* list_mov_xy(short int x, short int y, unsigned short int width, node_t* start)
+int list_offset_from_xy(short int x, short int y, unsigned short int width, node_t* cur)
 {
-    // just put in first as it is
-    // go to corrosponding linebreak, count steps
-    node_t* cur = start;
     int res = 0;
-    move_ptr_line(cur, true, &res);
+    move_ptr_line(cur, true, &res, width);
     // move prt to cur of line count steps
     // move ptr y cords up or down:
     res = 0;
-    if (y < 0) { // up
-        for (int i = 0; i < -y && cur->prev != NULL; i++) {
-            cur = move_ptr_line(cur->prev, true, &res);
-        }
-    } else { // down
-        for (int i = 0; i < y && cur->next != NULL; i++) {
-            cur = move_ptr_line(cur->next, false, &res);
-        }
+    for (int i = 0; i < abs(y); i++) {
+        cur = move_ptr_line(cur, y < 0, &res, width);
     }
     // could refactor here to return int offset like originally planned
     //  move ptr to according position
-    res += x;
-    if (res < 0) {
-        for (int i = 0; i < -res; i++) {
-            start = start->prev;
+    return res + x;
+}
+void list_mov_offset(node_t** start, int offset)
+{
+    if (offset < 0) {
+        for (int i = 0; i < -offset; i++) {
+            if ((*start)->prev)
+                (*start) = (*start)->prev;
         }
     } else {
-        for (int i = 0; i < res; i++) {
-            start = start->next;
+        for (int i = 0; i < offset; i++) {
+            if ((*start)->next)
+                (*start) = (*start)->next;
         }
     }
+}
+node_t* list_mov_xy(short int x, short int y, unsigned short int width, node_t* start)
+{
+    list_mov_offset(&start, list_offset_from_xy(x, y, width, start));
     return start;
+    // just put in first as it is
+    // go to corrosponding linebreak, count steps
 }
