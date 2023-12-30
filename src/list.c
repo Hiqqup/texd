@@ -23,14 +23,15 @@ node_t* list_insert(node_t* node, LIST_VAL_T c)
     node->next = ins;
     return ins;
 }
-void list_free(node_t* entry){
+void list_free(node_t* entry)
+{
     node_t* right = entry->next;
-    while(right->val != LIST_STOPPER){
+    while (right->val != LIST_STOPPER) {
         right = right->next;
         free(right->prev);
     }
     free(right);
-    while(entry->val != LIST_STOPPER){
+    while (entry->val != LIST_STOPPER) {
         entry = entry->prev;
         free(entry->next);
     }
@@ -42,11 +43,18 @@ node_t* move_ptr_line(node_t* start, bool up, int* steps_it_took)
     // gotta add lines spanning multiple lines later
     //
     if (!up) {
-        while (start->val != LIST_STOPPER && start->val != '\n') {
-            start = start->next;
-            (*steps_it_took)++;
+        node_t* tmp = start;
+        int counter = 1;
+        while (tmp->val != LIST_STOPPER && tmp->val != '\n') {
+            tmp = tmp->next;
+            counter++;
+        }
+        if (tmp->val != LIST_STOPPER && tmp->next != NULL) {
+            (*steps_it_took) += counter;
+            start = tmp;
         }
     } else {
+        (*steps_it_took)--;
         while (start->val != LIST_STOPPER && start->val != '\n') {
             start = start->prev;
             (*steps_it_took)--;
@@ -55,24 +63,36 @@ node_t* move_ptr_line(node_t* start, bool up, int* steps_it_took)
 
     return start;
 }
-short int xy_to_list(short int x, short int y,unsigned short int width, node_t* start)
+node_t* list_mov_xy(short int x, short int y, unsigned short int width, node_t* start)
 {
     // just put in first as it is
     // go to corrosponding linebreak, count steps
-    int steps_to_linebegin = 0; // gonna add that later on
-    while (start->val != LIST_STOPPER && start->val != '\n') {
-        move_ptr_line(start, true, &steps_to_linebegin);
-    } // move prt to start of line count steps
-    // move ptr y cords up or down:
+    node_t* cur = start;
     int res = 0;
+    move_ptr_line(cur, true, &res);
+    // move prt to cur of line count steps
+    // move ptr y cords up or down:
+    res = 0;
     if (y < 0) { // up
-        for (int i = 0; i < -y; i++) {
-            start = move_ptr_line(start->prev, true, &res);
+        for (int i = 0; i < -y && cur->prev != NULL; i++) {
+            cur = move_ptr_line(cur->prev, true, &res);
         }
     } else { // down
-        for (int i = 0; i < y; i++) {
-            start = move_ptr_line(start->next, false, &res);
+        for (int i = 0; i < y && cur->next != NULL; i++) {
+            cur = move_ptr_line(cur->next, false, &res);
         }
     }
-    return res+x;
+    // could refactor here to return int offset like originally planned
+    //  move ptr to according position
+    res += x;
+    if (res < 0) {
+        for (int i = 0; i < -res; i++) {
+            start = start->prev;
+        }
+    } else {
+        for (int i = 0; i < res; i++) {
+            start = start->next;
+        }
+    }
+    return start;
 }

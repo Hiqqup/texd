@@ -145,3 +145,9 @@ int main()
     }
     return 0;
 }
+
+
+// clipboard
+
+                buf->first = list_mov_xy(0, 1, buf->term_cols, buf->first);
+                buf->first = list_mov_xy(0, -1, buf->term_cols, buf->first);

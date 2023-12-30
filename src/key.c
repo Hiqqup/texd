@@ -46,13 +46,13 @@ void key_process_input(int c, struct Buffer* buf)
             if (buf->term_y < buf->term_rows) {
                 buf->term_y++;
             } else
-                scroll_next(buf);
+                buf->first = list_mov_xy(0, 2, buf->term_cols, buf->first);
             break;
         case 'k':
             if (buf->term_y > 0) {
                 buf->term_y--;
             } else
-                scroll_prev(buf);
+                buf->first = list_mov_xy(0, -2, buf->term_cols, buf->first);
             break;
         }
         break;
