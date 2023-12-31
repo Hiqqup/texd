@@ -46,11 +46,20 @@ void output_print_buffer(struct Buffer* buf)
 
     print_buffer_append(&print_buffer, "\x1b[?25l", 6); // hide cursor
     print_buffer_append(&print_buffer, "\x1b[H", 3); // move to the top
-    print_buffer_append(&print_buffer, "\x1b[2J", 4);
+    print_buffer_append(&print_buffer, "\x1b[2J", 4);//clear screen
 
     print_buffer_from_contents(&print_buffer, buf);
 
     print_buffer_append(&print_buffer, "\x1b[?25h", 6); // show cursor
+    switch(buf->mode){
+        case MODE_NORMAL:
+            print_buffer_append(&print_buffer, "\x1b[2 q", 5); // block cursor
+        break;
+        case MODE_INSERT:
+        case MODE_COMMAND:
+            print_buffer_append(&print_buffer, "\x1b[6 q", 5); // line cursor
+        break;
+    }
 
     char move_buffer[32];
     snprintf(move_buffer, sizeof(move_buffer), "\x1b[%d;%dH", buf->term_y + 1, buf->term_x + 1);

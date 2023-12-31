@@ -23,17 +23,25 @@ node_t* list_insert(node_t* node, LIST_VAL_T c)
     node->next = ins;
     return ins;
 }
+void list_delete(node_t* from, node_t* to)
+{
+    /*expecing the ptrs in right order*/
+    node_t* to_free = from->next;
+    to_free->prev = NULL;
+    from->next = to;
+    to->prev->next = NULL;
+    to->prev = from;
+    list_free(to_free);
+}
 void list_free(node_t* entry)
 {
-    node_t* right = entry->next;
-    while (right->val != LIST_STOPPER) {
-        right = right->next;
-        free(right->prev);
-    }
-    free(right);
-    while (entry->val != LIST_STOPPER) {
+    while (entry->prev)
         entry = entry->prev;
-        free(entry->next);
+    node_t* to_free = entry;
+    while (entry->next) {
+        free(to_free);
+        to_free = entry;
+        entry = entry->next;
     }
     free(entry);
 }

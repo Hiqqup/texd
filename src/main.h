@@ -13,7 +13,9 @@ typedef struct node {
 }node_t;
 
 enum Mode{
+    MODE_NORMAL,
     MODE_INSERT,
+    MODE_COMMAND,
 };
 struct Buffer{
     node_t* first;//first character on the screen;//to be exact the char before that

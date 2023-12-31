@@ -1,8 +1,14 @@
 
 #ifndef KEY_H
 #define KEY_H
-#include "main.h"
 #include "list.h"
+#include "main.h"
+#include <ctype.h>
 #include <stdbool.h>
 void key_process_input(int c, struct Buffer* buf);
-#endif//KEY_H
+enum Key {
+    KEY_ENTER = 13,
+    KEY_ESC = 27,
+    KEY_BACKSPACE = 127,
+};
+#endif // KEY_H

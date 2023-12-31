@@ -24,7 +24,7 @@ void init(int argc, char** argv)
         fileio_to_list(buf.filename, buf.first);
     }
     term_get_dimensions(&buf.term_rows, &buf.term_cols);
-    buf.term_rows -= 1; // 3; // to have a little extra space for bars
+    buf.term_rows -= 2; // 3; // to have a little extra space for bars
 
     buf.term_y = 0;
     buf.term_x = 0;
@@ -38,11 +38,12 @@ int main(int argc, char** argv)
     term_enable_raw_mode();
     init(argc, argv);
 
+
     //buf.first = list_mov_xy(0, 1, 38, buf.first);//3 up
     // printf("term dimesions: %i x %i \n",buf.term_cols, buf.term_rows);
     /*tmp loop to check if input works*/
     // LIST_VAL_T c = 0;
-    output_print_buffer(&buf);
+output_print_buffer(&buf);
     while (1) {
         key_process_input(term_get_input(), &buf);
         output_print_buffer(&buf);
