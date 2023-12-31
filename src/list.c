@@ -37,7 +37,7 @@ void list_free(node_t* entry)
     }
     free(entry);
 }
-node_t* move_ptr_line(node_t* start, bool up, int* steps_it_took, unsigned short int width)
+node_t* list_move_ptr_line(node_t* start, bool up, int* steps_it_took, unsigned short int width)
 {
     int col = 0;
     if (!up) {
@@ -49,7 +49,7 @@ node_t* move_ptr_line(node_t* start, bool up, int* steps_it_took, unsigned short
             start = start->next;
             (*steps_it_took)++;
         }
-        if (start->val != '\n' && start->next->val == '\n') {
+        if (start->val != '\n' && start->next && start->next->val == '\n') {
             (*steps_it_took)++;
             return start->next;
         } // to deal with lines that are exactly with long
@@ -74,38 +74,56 @@ node_t* move_ptr_line(node_t* start, bool up, int* steps_it_took, unsigned short
 
     return start;
 }
-int list_offset_from_xy(short int x, short int y, unsigned short int width, node_t* cur)
+int list_offset_from_y(short int y, unsigned short int width, node_t* cur)
 {
     int res = 0;
-    move_ptr_line(cur, true, &res, width);
+    list_move_ptr_line(cur, true, &res, width);
     // move prt to cur of line count steps
     // move ptr y cords up or down:
     res = 0;
     for (int i = 0; i < abs(y); i++) {
-        cur = move_ptr_line(cur, y < 0, &res, width);
+        cur = list_move_ptr_line(cur, y < 0, &res, width);
     }
     // could refactor here to return int offset like originally planned
     //  move ptr to according position
-    return res + x;
+    return res;
 }
-void list_mov_offset(node_t** start, int offset)
+node_t* list_mov_offset(node_t* start, int offset)
 {
     if (offset < 0) {
         for (int i = 0; i < -offset; i++) {
-            if ((*start)->prev)
-                (*start) = (*start)->prev;
+            if (start->prev)
+                start = start->prev;
         }
     } else {
         for (int i = 0; i < offset; i++) {
-            if ((*start)->next)
-                (*start) = (*start)->next;
+            if (start->next)
+                start = start->next;
         }
     }
-}
-node_t* list_mov_xy(short int x, short int y, unsigned short int width, node_t* start)
-{
-    list_mov_offset(&start, list_offset_from_xy(x, y, width, start));
     return start;
+}
+node_t* list_mov_y(short int y, unsigned short int width, node_t* start)
+{
+    return list_mov_offset(start, list_offset_from_y(y, width, start));
     // just put in first as it is
     // go to corrosponding linebreak, count steps
+}
+int list_ptr_distance(node_t* ptr1, node_t* ptr2)
+{
+    /*ripple from ptr2*/
+    int left = 0;
+    int right = 0;
+    node_t* ptr3 = ptr2;
+    while (ptr2 != ptr1 && ptr3 != ptr1) {
+        if (ptr2->prev) {
+            ptr2 = ptr2->prev;
+            left++;
+        }
+        if (ptr3->next) {
+            ptr3 = ptr3->prev;
+            right++;
+        }
+    }
+    return left > right ? -left : right;
 }

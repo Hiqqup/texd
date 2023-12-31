@@ -26,7 +26,7 @@ void print_buffer_append(struct PrintBuffer* print_buf, const char* string, unsi
 }
 void print_buffer_from_contents(struct PrintBuffer* print_buf, struct Buffer* buf)
 {
-    int prints = list_offset_from_xy(0, buf->term_rows + 1, buf->term_cols, buf->first);
+    int prints = list_offset_from_y( buf->term_rows + 1, buf->term_cols, buf->first);
     node_t* cur = (buf->first->next != NULL) ? buf->first->next : buf->first;
     for (int i = 0; i < prints - 1 && cur->val != LIST_STOPPER; i++) {
         print_buffer_append(print_buf, &cur->val, 1);

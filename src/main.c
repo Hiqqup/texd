@@ -17,6 +17,8 @@ struct Buffer buf;
 void init(int argc, char** argv)
 {
     buf.first = list_init();
+    buf.current_linebreak = buf.first;
+    buf.current = buf.first;
     if (argc >= 2) {
         buf.filename = argv[1];
         fileio_to_list(buf.filename, buf.first);
@@ -26,6 +28,7 @@ void init(int argc, char** argv)
 
     buf.term_y = 0;
     buf.term_x = 0;
+    buf.wanabe_x = 0;
     buf.mode = MODE_INSERT;
 }
 
@@ -35,7 +38,7 @@ int main(int argc, char** argv)
     term_enable_raw_mode();
     init(argc, argv);
 
-    buf.first = list_mov_xy(0, 1, 38, buf.first);//3 up
+    //buf.first = list_mov_xy(0, 1, 38, buf.first);//3 up
     // printf("term dimesions: %i x %i \n",buf.term_cols, buf.term_rows);
     /*tmp loop to check if input works*/
     // LIST_VAL_T c = 0;

@@ -7,7 +7,9 @@ void list_free(node_t* entry);
 node_t* list_insert(node_t* node, char c); // return insertion //insert after
 node_t* list_init();
 // node_t* move_ptr_line(node_t* start, bool up, int* steps_it_took); //may be only temporary
-node_t* list_mov_xy(short int x, short int y, unsigned short int width, node_t* start);
-int list_offset_from_xy(short int x, short int y, unsigned short int width, node_t* cur);
-void list_mov_offset(node_t** start, int offset);
+node_t* list_mov_y( short int y, unsigned short int width, node_t* start);
+int list_offset_from_y( short int y, unsigned short int width, node_t* cur);
+node_t* list_mov_offset(node_t* start, int offset);
+int list_ptr_distance(node_t* ptr1, node_t* ptr2);
+
 #endif // LIST_H

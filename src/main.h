@@ -18,9 +18,11 @@ enum Mode{
 struct Buffer{
     node_t* first;//first character on the screen;//to be exact the char before that
     node_t* current;
+    node_t* current_linebreak;
     char* filename;
     unsigned short int term_cols;
     unsigned short int term_rows;
+    unsigned short int wanabe_x;// where cursor wants to be
     unsigned short int term_x;// position of cursor
     unsigned short int term_y;
     enum Mode mode;
