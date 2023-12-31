@@ -18,10 +18,20 @@ void move_cursor_vert(struct Buffer* buf, int direction)
 }
 void move_cursor_right(struct Buffer* buf)
 {
+    buf->wanabe_x++;
+    buf->term_x++;
+    buf->current = buf->current->next;
+}
+void move_cursor_right_block(struct Buffer* buf)
+{
+    if (buf->current->next->next != list_mov_y(1, buf->term_cols, buf->current_linebreak)) {
+        move_cursor_right(buf);
+    }
+}
+void move_cursor_right_line(struct Buffer* buf)
+{
     if (buf->current->next != list_mov_y(1, buf->term_cols, buf->current_linebreak)) {
-        buf->wanabe_x++;
-        buf->term_x++;
-        buf->current = buf->current->next;
+        move_cursor_right(buf);
     }
 }
 void move_cursor_left(struct Buffer* buf)
@@ -42,7 +52,7 @@ void key_process_input(int c, struct Buffer* buf)
             move_cursor_left(buf);
             break;
         case 'l':
-            move_cursor_right(buf);
+            move_cursor_right_block(buf);
             break;
         case 'j':
             if (list_mov_y(2, buf->term_cols, buf->current_linebreak)->val != LIST_STOPPER)
@@ -55,7 +65,7 @@ void key_process_input(int c, struct Buffer* buf)
             buf->mode = MODE_INSERT;
             break;
         case 'a':
-            move_cursor_right(buf);
+            move_cursor_right_line(buf);
             buf->mode = MODE_INSERT;
             break;
         }
@@ -63,7 +73,7 @@ void key_process_input(int c, struct Buffer* buf)
     case MODE_INSERT:
         if (!iscntrl(c)) {
             list_insert(buf->current, c);
-            move_cursor_right(buf);
+            move_cursor_right_line(buf);
             return;
         }
 
