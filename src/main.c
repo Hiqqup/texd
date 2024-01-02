@@ -22,7 +22,7 @@ void init(int argc, char** argv)
     if (argc >= 2) {
         buf.filename = argv[1];
         fileio_to_list(buf.filename, buf.first);
-    }else{
+    } else {
         buf.filename = "[No Name]";
     }
     term_get_dimensions(&buf.term_rows, &buf.term_cols);
@@ -49,11 +49,13 @@ int main(int argc, char** argv)
         key_process_input(term_get_input(), &buf);
         output_print_buffer(&buf);
     }
-    exit_editor();
+    exit_editor(&buf);
     return 0;
 }
-void exit_editor(){
-    list_free(buf.first);
+void exit_editor(struct Buffer* bufr)
+{
+    free(bufr->command);
+    list_free(bufr->first);
     term_exit_editor();
     exit(0);
 }

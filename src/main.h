@@ -34,5 +34,5 @@ struct Buffer {
     char* command;
 };
 void die(const char* s);
-void exit_editor();
+void exit_editor(struct Buffer* bufr);
 #endif // MAIN_H

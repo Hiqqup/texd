@@ -54,18 +54,18 @@ void exit_command_mode(struct Buffer* buf)
 void backspace_delete(struct Buffer* buf)
 {
     int i = 0;
-    do{
-    if (buf->current->val == '\n') {
-        buf->wanabe_x = buf->term_cols;
-        move_cursor_vert(buf, -1);
-        buf->wanabe_x = buf->term_x;
-        move_cursor_right_line(buf);
-        list_delete(buf->current, buf->current->next->next);
-    } else if (buf->current->val != LIST_STOPPER) {
-        move_cursor_left(buf);
-        list_delete(buf->current, buf->current->next->next);
-    }
-    }while (i++ <3 && buf->current->val == ' ');
+    do {
+        if (buf->current->val == '\n') {
+            buf->wanabe_x = buf->term_cols;
+            move_cursor_vert(buf, -1);
+            buf->wanabe_x = buf->term_x;
+            move_cursor_right_line(buf);
+            list_delete(buf->current, buf->current->next->next);
+        } else if (buf->current->val != LIST_STOPPER) {
+            move_cursor_left(buf);
+            list_delete(buf->current, buf->current->next->next);
+        }
+    } while (i++ < 3 && buf->current->val == ' ');
 }
 void key_process_input(int c, struct Buffer* buf)
 {
@@ -128,7 +128,7 @@ void key_process_input(int c, struct Buffer* buf)
             buf->mode = MODE_NORMAL;
             break;
         case KEY_BACKSPACE:
-                backspace_delete(buf);
+            backspace_delete(buf);
             break;
         }
         break;

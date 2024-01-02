@@ -16,14 +16,16 @@ void fileio_to_list(char* filename, node_t* node)
     } while (c != EOF);
     fclose(fp);
 }
-void fileio_save(struct Buffer* buf){
-        FILE* fp = fopen(buf->filename, "w");
-        if (!fp)
-            die("fopen");
-        fprintf(fp, "%s", list_to_string(buf->first));
-        fclose(fp);
+void fileio_save(struct Buffer* buf)
+{
+    FILE* fp = fopen(buf->filename, "w");
+    if (!fp)
+        die("fopen");
+    char* content = list_to_string(buf->first);
+    fprintf(fp, "%s", content);
+    fclose(fp);
+    free(content);
 }
-
 
 void print_buffer_append(struct PrintBuffer* print_buf, const char* string, unsigned short int length)
 {
