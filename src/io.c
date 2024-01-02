@@ -16,6 +16,14 @@ void fileio_to_list(char* filename, node_t* node)
     } while (c != EOF);
     fclose(fp);
 }
+void fileio_save(struct Buffer* buf){
+        FILE* fp = fopen(buf->filename, "w");
+        if (!fp)
+            die("fopen");
+        fprintf(fp, "%s", list_to_string(buf->first));
+        fclose(fp);
+}
+
 
 void print_buffer_append(struct PrintBuffer* print_buf, const char* string, unsigned short int length)
 {
@@ -26,7 +34,7 @@ void print_buffer_append(struct PrintBuffer* print_buf, const char* string, unsi
 }
 void print_buffer_from_contents(struct PrintBuffer* print_buf, struct Buffer* buf)
 {
-    int prints = list_offset_from_y( buf->term_rows + 1, buf->term_cols, buf->first);
+    int prints = list_offset_from_y(buf->term_rows + 1, buf->term_cols, buf->first);
     node_t* cur = (buf->first->next != NULL) ? buf->first->next : buf->first;
     for (int i = 0; i < prints - 1 && cur->val != LIST_STOPPER; i++) {
         print_buffer_append(print_buf, &cur->val, 1);
@@ -46,18 +54,21 @@ void output_print_buffer(struct Buffer* buf)
 
     print_buffer_append(&print_buffer, "\x1b[?25l", 6); // hide cursor
     print_buffer_append(&print_buffer, "\x1b[H", 3); // move to the top
-    print_buffer_append(&print_buffer, "\x1b[2J", 4);//clear screen
+    print_buffer_append(&print_buffer, "\x1b[2J", 4); // clear screen
 
     print_buffer_from_contents(&print_buffer, buf);
-
+    if (buf->mode == MODE_COMMAND) {
+        print_buffer_append(&print_buffer, "\n", 1);
+        print_buffer_append(&print_buffer, buf->command, buf->term_x);
+    }
     print_buffer_append(&print_buffer, "\x1b[?25h", 6); // show cursor
-    switch(buf->mode){
-        case MODE_NORMAL:
-            print_buffer_append(&print_buffer, "\x1b[2 q", 5); // block cursor
+    switch (buf->mode) {
+    case MODE_NORMAL:
+        print_buffer_append(&print_buffer, "\x1b[2 q", 5); // block cursor
         break;
-        case MODE_INSERT:
-        case MODE_COMMAND:
-            print_buffer_append(&print_buffer, "\x1b[6 q", 5); // line cursor
+    case MODE_INSERT:
+    case MODE_COMMAND:
+        print_buffer_append(&print_buffer, "\x1b[6 q", 5); // line cursor
         break;
     }
 

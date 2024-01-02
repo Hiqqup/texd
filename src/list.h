@@ -12,5 +12,6 @@ node_t* list_mov_y( short int y, unsigned short int width, node_t* start);
 int list_offset_from_y( short int y, unsigned short int width, node_t* cur);
 node_t* list_mov_offset(node_t* start, int offset);
 int list_ptr_distance(node_t* ptr1, node_t* ptr2);
+char* list_to_string(node_t* entry);
 
 #endif // LIST_H

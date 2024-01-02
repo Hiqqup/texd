@@ -23,7 +23,7 @@ void term_clean_screen()
 
 void term_exit_editor()
 {
-    term_clean_screen();
+    //term_clean_screen();
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios) == -1)
         die("tcsetattr");
 }

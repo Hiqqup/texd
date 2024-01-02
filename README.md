@@ -5,3 +5,7 @@ scrolling is acually reasonable when having multiple lines, dont care put this i
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 ```
+
+
+### TODO:
+- implement multiple lines for command

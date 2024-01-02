@@ -33,15 +33,36 @@ void list_delete(node_t* from, node_t* to)
     to->prev = from;
     list_free(to_free);
 }
+char* list_to_string(node_t* entry)
+{
+    while (entry->prev)
+        entry = entry->prev;
+    entry = entry->next;
+    size_t stack_size = 1024;
+    char* stack = malloc(sizeof(char) * stack_size);
+    size_t stack_ptr = 0;
+    while (entry->next->val != LIST_STOPPER) {
+        stack[stack_ptr++] = entry->val;
+        if (stack_ptr == stack_size) {
+            stack_size *= 2;
+            stack = realloc(stack, stack_size);
+            if (!stack)
+                die("realloc");
+        }
+        entry = entry->next;
+    }
+    stack[stack_ptr] = '\0';
+    return stack;
+}
 void list_free(node_t* entry)
 {
     while (entry->prev)
         entry = entry->prev;
     node_t* to_free = entry;
     while (entry->next) {
+        entry = entry->next;
         free(to_free);
         to_free = entry;
-        entry = entry->next;
     }
     free(entry);
 }

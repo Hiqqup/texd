@@ -2,8 +2,8 @@
 #include "main.h"
 #include "io.h"
 #include "key.h"
-#include "term.h"
 #include "list.h"
+#include "term.h"
 
 /** genral functions **/
 void die(const char* s)
@@ -22,6 +22,8 @@ void init(int argc, char** argv)
     if (argc >= 2) {
         buf.filename = argv[1];
         fileio_to_list(buf.filename, buf.first);
+    }else{
+        buf.filename = "[No Name]";
     }
     term_get_dimensions(&buf.term_rows, &buf.term_cols);
     buf.term_rows -= 2; // 3; // to have a little extra space for bars
@@ -29,28 +31,29 @@ void init(int argc, char** argv)
     buf.term_y = 0;
     buf.term_x = 0;
     buf.wanabe_x = 0;
-    buf.mode = MODE_INSERT;
-}
+    buf.before_command_y = 0;
+    buf.mode = MODE_NORMAL;
+    buf.editor_tabwidth = 4;
 
+    buf.command = malloc(sizeof(char) * buf.term_cols);
+    buf.command[0] = '\0';
+}
 int main(int argc, char** argv)
 {
     term_clean_screen();
     term_enable_raw_mode();
     init(argc, argv);
 
-
-    //buf.first = list_mov_xy(0, 1, 38, buf.first);//3 up
-    // printf("term dimesions: %i x %i \n",buf.term_cols, buf.term_rows);
-    /*tmp loop to check if input works*/
-    // LIST_VAL_T c = 0;
-output_print_buffer(&buf);
+    output_print_buffer(&buf);
     while (1) {
         key_process_input(term_get_input(), &buf);
         output_print_buffer(&buf);
-        // printf("first val: %c \n",buf.first->val);
-        // printf("first val: %i ,linbrak val: %i \n",buf.first->val, '\n');
     }
+    exit_editor();
+    return 0;
+}
+void exit_editor(){
     list_free(buf.first);
     term_exit_editor();
-    return 0;
+    exit(0);
 }
